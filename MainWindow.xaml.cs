@@ -13,6 +13,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using System.Xml;
+using System.Xml.Linq;
+using System.IO;
 
 namespace Kursovoj
 {
@@ -21,30 +23,49 @@ namespace Kursovoj
     /// </summary>
     public partial class MainWindow : Window
     {
-        FlowDocumentPageViewer fdpv = new FlowDocumentPageViewer();
+        //FlowDocumentPageViewer fdpv = new FlowDocumentPageViewer();
         //FlowDocumentReader fdr = new FlowDocumentReader();
-        
+        string openedFile;
+
         public MainWindow()
         {
             InitializeComponent();
 
+            string fn="1.fb2";
+            openedFile = PreOpen(fn);
+            XDocument doc = XDocument.Load(openedFile);
 
-            Paragraph p = new Paragraph();
-            XmlDocument xmld = new XmlDocument();
-            xmld.Load("2.fb2");
-            //if (xmld.InnerXml!="")///!!!
+            var query = from node in doc.Root.Descendants("p")
+                        select node.Value;
+
+            
+            FlowDocument fd = new FlowDocument();
+            fd.Background = Brushes.Beige;
+            fd.ColumnRuleBrush = Brushes.Beige;
+            fd.FontSize = 16;
+            foreach (string parStr in query)
             {
-                p.Inlines.Add(xmld.InnerXml);
-                FlowDocument fd = new FlowDocument();
-                fd.Blocks.Add(p);
-                fd.Background = Brushes.Beige;
-                fd.ColumnRuleBrush = Brushes.Beige;
-                fd.FontSize = 16;
-
-                fdr.Document = fd;
-
-                fdr.Focus();
+                Paragraph p = new Paragraph();
+                p.Inlines.Add(parStr);
+                fd.Blocks.Add(p);   
             }
+            fdr.Document = fd;
+            fdr.Focus();
+        }
+
+        private string PreOpen(string fileName)
+        {
+            string tempFileName = fileName.Substring(0, fileName.Length - 4)+"_temp.fb2";
+
+            StreamReader sr = new StreamReader(fileName, System.Text.Encoding.GetEncoding(1251));
+            string temp = sr.ReadToEnd().Replace("xmlns=\"http://www.gribuser.ru/xml/fictionbook/2.0\"", "xmlns:xhtml=\"http://www.gribuser.ru/xml/fictionbook/2.0\"");
+            sr.Close();
+
+            StreamWriter sw = new StreamWriter(tempFileName, false, System.Text.Encoding.GetEncoding(1251));
+            sw.Write(temp);
+            sw.Close();
+
+            return tempFileName;
         }
 
         Paragraph bookmark;
@@ -58,6 +79,10 @@ namespace Kursovoj
         private void button2_Click(object sender, RoutedEventArgs e)
         {
             bookmark.BringIntoView();
+        }
+        ~MainWindow()
+        {
+            File.Delete(openedFile);
         }
     }
 }
