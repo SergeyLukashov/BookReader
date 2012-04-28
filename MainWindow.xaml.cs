@@ -31,26 +31,50 @@ namespace Kursovoj
         {
             InitializeComponent();
 
-            string fn="1.fb2";
+            string fn="3.fb2";
             openedFile = PreOpen(fn);
             XDocument doc = XDocument.Load(openedFile);
 
-            var query = from node in doc.Root.Descendants("p")
+            List<string> title = (from node in doc.Root.Descendants("book-title")
+                               select node.Value).ToList<string>();
+
+            if (title.Count != 0) Title = title[0];
+
+            //<coverpage><image l:href="#cover.jpg"/></coverpage>
+            //<binary id="cover.jpg" content-type="image/jpeg">
+            var image_query = (from node in doc.Root.Descendants("binary")
+                          select node.Value).ToList<string>();
+            //image_query[0].//File.ReadAllBytes
+            //img = new Image();
+            //img=BitmapImage.from
+
+            var p_query = from node in doc.Root.Descendants("p")
                         select node.Value;
 
-            
             FlowDocument fd = new FlowDocument();
             fd.Background = Brushes.Beige;
             fd.ColumnRuleBrush = Brushes.Beige;
             fd.FontSize = 16;
-            foreach (string parStr in query)
+            foreach (string parStr in p_query)
             {
                 Paragraph p = new Paragraph();
                 p.Inlines.Add(parStr);
                 fd.Blocks.Add(p);   
             }
+            //fd.Blocks.Add(new Image());
             fdr.Document = fd;
             fdr.Focus();
+        }
+
+        public BitmapImage ImageFromBuffer(Byte[] bytes)
+        {
+            MemoryStream stream = new MemoryStream(bytes);
+            BitmapImage image = new BitmapImage();
+            image.BeginInit();
+            image.StreamSource = stream;
+            image.EndInit();
+
+            return image;
         }
 
         private string PreOpen(string fileName)
@@ -72,17 +96,26 @@ namespace Kursovoj
         private void button1_Click(object sender, RoutedEventArgs e)
         {
             var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
-            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber - 1)) as TextPointer;
+            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber )) as TextPointer;
             bookmark = position.Paragraph;
         }
 
+        Window1 w;
+        BitmapImage img;
         private void button2_Click(object sender, RoutedEventArgs e)
         {
+            if(bookmark!=null)
             bookmark.BringIntoView();
+
+            w = new Window1();
+            
+            w.Show();
         }
+
         ~MainWindow()
         {
             File.Delete(openedFile);
         }
     }
 }
+

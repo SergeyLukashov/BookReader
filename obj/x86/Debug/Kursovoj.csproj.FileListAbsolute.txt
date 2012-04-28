@@ -11,3 +11,5 @@ E:\Programming\C#\Kursovoj\Kursovoj\bin\Debug\Kursovoj.exe
 E:\Programming\C#\Kursovoj\Kursovoj\bin\Debug\Kursovoj.pdb
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\Kursovoj.exe
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\Kursovoj.pdb
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\Window1.baml
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\Window1.g.cs
