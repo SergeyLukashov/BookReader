@@ -31,7 +31,7 @@ namespace Kursovoj
         {
             InitializeComponent();
 
-            string fn="3.fb2";
+            string fn="1.fb2";
             openedFile = PreOpen(fn);
             XDocument doc = XDocument.Load(openedFile);
 
@@ -44,9 +44,10 @@ namespace Kursovoj
             //<binary id="cover.jpg" content-type="image/jpeg">
             var image_query = (from node in doc.Root.Descendants("binary")
                           select node.Value).ToList<string>();
-            //image_query[0].//File.ReadAllBytes
-            //img = new Image();
-            //img=BitmapImage.from
+
+            string byteStr = image_query[0];
+            BitmapImage img = ImageFromByte(byteStr);
+
 
             var p_query = from node in doc.Root.Descendants("p")
                         select node.Value;
@@ -55,26 +56,28 @@ namespace Kursovoj
             fd.Background = Brushes.Beige;
             fd.ColumnRuleBrush = Brushes.Beige;
             fd.FontSize = 16;
+            fd.Blocks.Add(new BlockUIContainer(new Image() { Source = img, Width = img.PixelWidth, Height = img.PixelHeight }));
             foreach (string parStr in p_query)
             {
                 Paragraph p = new Paragraph();
                 p.Inlines.Add(parStr);
                 fd.Blocks.Add(p);   
             }
-            //fd.Blocks.Add(new Image());
+            
             fdr.Document = fd;
             fdr.Focus();
         }
 
-        public BitmapImage ImageFromBuffer(Byte[] bytes)
+        public BitmapImage ImageFromByte(string strByte)
         {
-            MemoryStream stream = new MemoryStream(bytes);
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            image.StreamSource = stream;
-            image.EndInit();
+            byte[] byteImg = Convert.FromBase64String(strByte);
+            MemoryStream ms = new MemoryStream(byteImg);
+            BitmapImage img = new BitmapImage();
+            img.BeginInit();
+            img.StreamSource = ms;
+            img.EndInit();
 
-            return image;
+            return img;
         }
 
         private string PreOpen(string fileName)
@@ -100,16 +103,10 @@ namespace Kursovoj
             bookmark = position.Paragraph;
         }
 
-        Window1 w;
-        BitmapImage img;
         private void button2_Click(object sender, RoutedEventArgs e)
         {
             if(bookmark!=null)
             bookmark.BringIntoView();
-
-            w = new Window1();
-            
-            w.Show();
         }
 
         ~MainWindow()

@@ -1,8 +1,0 @@
-﻿<Window x:Class="Kursovoj.Window1"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Window1" Height="300" Width="300">
-    <Grid>
-        <Image Height="261" ClipToBounds="True" HorizontalAlignment="Left" Name="image1" Stretch="Fill" VerticalAlignment="Top" Width="278" />
-    </Grid>
-</Window>
