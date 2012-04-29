@@ -31,14 +31,28 @@ namespace Kursovoj
         {
             InitializeComponent();
 
-            string fn="1.fb2";
+            string fn="2.fb2";
             openedFile = PreOpen(fn);
             XDocument doc = XDocument.Load(openedFile);
+            FlowDocument fd = new FlowDocument();
+            fd.Background = Brushes.Beige;
+            fd.ColumnRuleBrush = Brushes.Beige;
+            fd.FontSize = 16;
 
-            List<string> title = (from node in doc.Root.Descendants("book-title")
+            List<string>b_title = (from node in doc.Root.Descendants("book-title")
                                select node.Value).ToList<string>();
 
-            if (title.Count != 0) Title = title[0];
+            if (b_title.Count != 0) Title = b_title[0];
+
+            var title_query = (from node in doc.Root.Descendants("title")
+                               select node.Value).ToList<string>();
+
+            foreach (string parStr in title_query)
+            {
+                Paragraph p = new Paragraph();
+                p.Inlines.Add(new Bold(new Run(parStr)));
+                fd.Blocks.Add(p);
+            }
 
             //<coverpage><image l:href="#cover.jpg"/></coverpage>
             //<binary id="cover.jpg" content-type="image/jpeg">
@@ -50,12 +64,9 @@ namespace Kursovoj
 
 
             var p_query = from node in doc.Root.Descendants("p")
-                        select node.Value;
+                          where node.Parent.Name.ToString() != "title"
+                          select node.Value;
 
-            FlowDocument fd = new FlowDocument();
-            fd.Background = Brushes.Beige;
-            fd.ColumnRuleBrush = Brushes.Beige;
-            fd.FontSize = 16;
             fd.Blocks.Add(new BlockUIContainer(new Image() { Source = img, Width = img.PixelWidth, Height = img.PixelHeight }));
             foreach (string parStr in p_query)
             {
