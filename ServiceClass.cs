@@ -37,15 +37,28 @@ namespace Kursovoj
 
         public static BitmapImage ImageFromByte(string strByte)
         {
-            byte[] byteImg = Convert.FromBase64String(strByte);
-            MemoryStream ms = new MemoryStream(byteImg);
-            BitmapImage img = new BitmapImage();
-            img.BeginInit();
-            img.CacheOption = BitmapCacheOption.OnLoad;
-            img.StreamSource = ms;
-            img.EndInit();
+            if (strByte == "Error. No image available")
+            {
+                BitmapImage noCover = new BitmapImage();
+                noCover.BeginInit();
+                noCover.UriSource = new Uri("noCover.png", UriKind.Relative);
+                noCover.CacheOption = BitmapCacheOption.OnLoad;
+                noCover.EndInit();
 
-            return img;
+                return noCover;
+            }
+            else
+            {
+                byte[] byteImg = Convert.FromBase64String(strByte);
+                MemoryStream ms = new MemoryStream(byteImg);
+                BitmapImage img = new BitmapImage();
+                img.BeginInit();
+                img.CacheOption = BitmapCacheOption.OnLoad;
+                img.StreamSource = ms;
+                img.EndInit();
+
+                return img;
+            }
         }
 
         public static string GetTitle(XDocument doc)

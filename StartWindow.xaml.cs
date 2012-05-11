@@ -32,12 +32,6 @@ namespace Kursovoj
             listView1.ItemsSource=content;
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            mw = new MainWindow();
-            mw.Show();
-        }
-
         FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog();
         private void button2_Click(object sender, RoutedEventArgs e)//проход
         {
@@ -70,20 +64,11 @@ namespace Kursovoj
                 book.Add(new XAttribute("title", title));
                 book.Add(new XAttribute("authorFN", author[0]));
                 book.Add(new XAttribute("authorLN", author[1]));
+                book.Add(new XAttribute("filePath", file));
 
                 books.Root.Add(book);
 
-                if (coverInStr != "Error. No image available")
-                    content.Add(new ListContent(ServiceClass.ImageFromByte(coverInStr), title, author[0], author[1]));
-                else
-                {
-                    BitmapImage noCover = new BitmapImage();
-                    noCover.BeginInit();
-                    noCover.UriSource = new Uri("noCover.png", UriKind.Relative);
-                    noCover.CacheOption = BitmapCacheOption.OnLoad;
-                    noCover.EndInit();
-                    content.Add(new ListContent(noCover, title, author[0], author[1]));
-                }
+                content.Add(new ListContent(ServiceClass.ImageFromByte(coverInStr), title, author[0], author[1],file));
             }
             books.Save("AllBooks.xml");
         }
@@ -102,20 +87,30 @@ namespace Kursovoj
             if (content.Count != 0) content.Clear();
             foreach (var el in q)
             {
-                if (el.Value != "Error. No image available")
-                    content.Add(new ListContent(ServiceClass.ImageFromByte(el.Value), el.Attribute("title").Value, el.Attribute("authorFN").Value, el.Attribute("authorLN").Value));
-                else
-                {
-                    BitmapImage noCover = new BitmapImage();
-                    noCover.BeginInit();
-                    noCover.UriSource = new Uri("noCover.png", UriKind.Relative);
-                    noCover.CacheOption = BitmapCacheOption.OnLoad;
-                    noCover.EndInit();
-                    content.Add(new ListContent(noCover, el.Attribute("title").Value, el.Attribute("authorFN").Value, el.Attribute("authorLN").Value));
-                }
+                content.Add(new ListContent(ServiceClass.ImageFromByte(el.Value), el.Attribute("title").Value, el.Attribute("authorFN").Value, el.Attribute("authorLN").Value, el.Attribute("filePath").Value));
             }
 
             return content;
+        }
+
+        private void listView1_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ListContent item = (ListContent)listView1.SelectedItem;
+
+            string file = item.FilePath;
+            mw = new MainWindow(file);
+            mw.Show();
+        }
+
+        private void listView1_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            ListContent item = (ListContent)listView1.SelectedItem;
+
+            string file = item.FilePath;
+            mw = new MainWindow(file);
+            mw.Show();
         }
     }
 }

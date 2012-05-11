@@ -27,12 +27,12 @@ namespace Kursovoj
         //FlowDocumentReader fdr = new FlowDocumentReader();
         string openedFile;
 
-        public MainWindow()
+        public MainWindow(string file)
         {
             InitializeComponent();
 
-            string fn="2.fb2";
-            openedFile = ServiceClass.PreOpen(fn);
+            //string fn="2.fb2";
+            openedFile = ServiceClass.PreOpen(file);
             XDocument doc = XDocument.Load(openedFile);
             FlowDocument fd = new FlowDocument();
             fd.Background = Brushes.Beige;
