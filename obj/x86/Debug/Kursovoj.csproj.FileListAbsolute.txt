@@ -13,3 +13,6 @@ E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\Kursovoj.exe
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\Kursovoj.pdb
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\StartWindow.baml
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\StartWindow.g.cs
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\DictionaryForScrollBars.baml
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\FirstStartWindow.baml
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Debug\FirstStartWindow.g.cs

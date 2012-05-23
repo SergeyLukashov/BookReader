@@ -29,17 +29,38 @@ namespace Kursovoj
         {
             InitializeComponent();
 
+            if (!File.Exists("AllBooks.xml"))
+            {
+                OnFirstStart();
+            }
+
             listView1.ItemsSource=content;
+            listView1.Focus();
+            listView1.SelectedIndex = 0;
         }
 
         FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog();
-        private void button2_Click(object sender, RoutedEventArgs e)//проход
+        private void OnFirstStart()
         {
-            selectFolderDialog.ShowNewFolderButton = false;
-            selectFolderDialog.RootFolder = Environment.SpecialFolder.MyComputer;
-            selectFolderDialog.ShowDialog();
+            FirstStartWindow firstStartWindow = new FirstStartWindow();
+            firstStartWindow.ShowDialog();
 
-            Bypass(selectFolderDialog.SelectedPath);
+            selectFolderDialog.ShowNewFolderButton = false;//select books folder
+            selectFolderDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+            DialogResult dr = selectFolderDialog.ShowDialog();
+
+            if (dr == System.Windows.Forms.DialogResult.OK)
+            {
+                XDocument tmp = new XDocument(new XElement("BookList"));
+                tmp.Save("AllBooks.xml");
+
+                Bypass(selectFolderDialog.SelectedPath);
+            }
+            else
+            {
+                //System.Windows.MessageBox.Show("cans");
+                Close();
+            }
         }
 
         private void Bypass(string startFolder)
@@ -57,6 +78,7 @@ namespace Kursovoj
                 string title = ServiceClass.GetTitle(doc);
                 string[] author = ServiceClass.GetAuthor(doc);
                 string coverInStr = ServiceClass.GetCover(doc);
+                string annotation = ServiceClass.GetAnnotation(doc);
 
                 File.Delete(openedFile);
 
@@ -64,11 +86,12 @@ namespace Kursovoj
                 book.Add(new XAttribute("title", title));
                 book.Add(new XAttribute("authorFN", author[0]));
                 book.Add(new XAttribute("authorLN", author[1]));
+                book.Add(new XAttribute("annotation", annotation));
                 book.Add(new XAttribute("filePath", file));
 
                 books.Root.Add(book);
 
-                content.Add(new ListContent(ServiceClass.ImageFromByte(coverInStr), title, author[0], author[1],file));
+                content.Add(new ListContent(ServiceClass.ImageFromByte(coverInStr), title, author[0], author[1], file, annotation));
             }
             books.Save("AllBooks.xml");
         }
@@ -76,6 +99,7 @@ namespace Kursovoj
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             LoadBooks();
+            Activate();
         }
 
         private ObservableCollection<ListContent> LoadBooks()
@@ -87,7 +111,7 @@ namespace Kursovoj
             if (content.Count != 0) content.Clear();
             foreach (var el in q)
             {
-                content.Add(new ListContent(ServiceClass.ImageFromByte(el.Value), el.Attribute("title").Value, el.Attribute("authorFN").Value, el.Attribute("authorLN").Value, el.Attribute("filePath").Value));
+                content.Add(new ListContent(ServiceClass.ImageFromByte(el.Value), el.Attribute("title").Value, el.Attribute("authorFN").Value, el.Attribute("authorLN").Value, el.Attribute("filePath").Value,el.Attribute("annotation").Value));
             }
 
             return content;
@@ -111,6 +135,19 @@ namespace Kursovoj
             string file = item.FilePath;
             mw = new MainWindow(file);
             mw.Show();
+        }
+
+        private void listView1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListContent item = (ListContent)listView1.SelectedItem;
+
+            if (item == null) return;
+
+            image1.Source = item.Cover;
+            textBlock1.Text = item.AuthorName+" "+item.AuthorSurname;
+            textBlock2.Text = item.Title;
+            //textBlock3.Text = item.Annotation;
+            textBox1.Text = item.Annotation;
         }
     }
 }

@@ -60,7 +60,11 @@ namespace Kursovoj
                 return img;
             }
         }
-
+        /// <summary>
+        /// Получает заголовок книги
+        /// </summary>
+        /// <param name="doc">Документ из которого необходимо получить заголовок</param>
+        /// <returns>Заголовок</returns>
         public static string GetTitle(XDocument doc)
         {
             List<string> b_title = (from node in doc.Root.Descendants("book-title")
@@ -82,6 +86,15 @@ namespace Kursovoj
             if (q_lastName.Count != 0) author[1] = q_lastName[0];
 
             return author;
+        }
+
+        public static string GetAnnotation(XDocument doc)
+        {
+            List<string> q_annotation = (from node in doc.Root.Descendants("annotation")
+                                        select node.Value).ToList<string>();
+
+            if (q_annotation.Count != 0) return q_annotation[0];
+            else return "Error. No annotation available.";
         }
     }
 }

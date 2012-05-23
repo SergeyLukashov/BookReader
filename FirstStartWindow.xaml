@@ -1,0 +1,10 @@
+﻿<Window x:Class="Kursovoj.FirstStartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BookReader" Height="222" Width="300" ResizeMode="NoResize" Topmost="True" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow">
+    <Grid>
+        <Label Content="Первый запуск программы" Height="34" HorizontalAlignment="Center" Margin="26,12,26,0" Name="label1" Foreground="#FF042271"  VerticalAlignment="Top" FontSize="16" FontWeight="Bold" FontStyle="Normal" />
+        <TextBlock TextWrapping="Wrap" Margin="12,0,12,41" Name="textBlock1" Text="Пожалуйста, выберите папку в корторой необходимо выполнить поиск." Height="69" VerticalAlignment="Bottom" Foreground="#FF042271"/>
+        <Button Content="Далее" Margin="0,0,12,12" Name="button1" Height="23" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Foreground="#FF042271" Click="button1_Click" />
+    </Grid>
+</Window>

@@ -9,13 +9,14 @@ namespace Kursovoj
 {
     class ListContent
     {
-        public ListContent(BitmapImage _cover,string _title, string _authorName, string _authorSurname,string _filePath)
+        public ListContent(BitmapImage _cover,string _title, string _authorName, string _authorSurname,string _filePath,string _annotation)
         {
             Cover = _cover;
             Title = _title;
             AuthorName = _authorName;
             AuthorSurname = _authorSurname;
             FilePath = _filePath;
+            Annotation = _annotation;
         }
 
         public BitmapImage Cover {set ; get;}
@@ -23,5 +24,6 @@ namespace Kursovoj
         public string AuthorName { set; get; }
         public string AuthorSurname { set; get; }
         public string FilePath { set; get; }
+        public string Annotation { set; get; }
     }
 }

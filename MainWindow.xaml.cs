@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Linq;
 using System.IO;
+//using System.Resources.
 
 namespace Kursovoj
 {
@@ -31,53 +32,75 @@ namespace Kursovoj
         {
             InitializeComponent();
 
-            //string fn="2.fb2";
             openedFile = ServiceClass.PreOpen(file);
             XDocument doc = XDocument.Load(openedFile);
-            FlowDocument fd = new FlowDocument();
-            fd.Background = Brushes.Beige;
-            fd.ColumnRuleBrush = Brushes.Beige;
-            fd.FontSize = 16;
-
-            Title = ServiceClass.GetTitle(doc);
-
-            var title_query = (from node in doc.Root.Descendants("title")
-                               select node.Value).ToList<string>();
-
-            foreach (string parStr in title_query)
-            {
-                Paragraph p = new Paragraph();
-                p.Inlines.Add(new Bold(new Run(parStr)));
-                fd.Blocks.Add(p);
-            }
-
-            //<coverpage><image l:href="#cover.jpg"/></coverpage>
-            //<binary id="cover.jpg" content-type="image/jpeg">
             
-            BitmapImage img = ServiceClass.ImageFromByte(ServiceClass.GetCover(doc));
 
-            var p_query = from node in doc.Root.Descendants("p")
-                          where node.Parent.Name.ToString() != "title"
-                          select node.Value;
-
-            fd.Blocks.Add(new BlockUIContainer(new Image() { Source = img, Width = img.PixelWidth, Height = img.PixelHeight }));
-            foreach (string parStr in p_query)
-            {
-                Paragraph p = new Paragraph();
-                p.Inlines.Add(parStr);
-                fd.Blocks.Add(p);   
-            }
-            
-            fdr.Document = fd;
+            fdr.Document = Parse(doc);
             fdr.Focus();
         }
 
-        
+        private FlowDocument Parse(XDocument doc)
+        {
+            bool coverFlag = true;
+
+            FlowDocument fd = new FlowDocument();
+            fd.Background = new SolidColorBrush(Color.FromRgb(255, 253, 225));
+            fd.FontSize = 16;
+
+            var all_elements = from el in doc.Root.Element("body").Descendants()
+                               select el;
+
+            foreach (var element in all_elements)
+            {
+                //string s = element.Name.ToString();
+                switch (element.Name.ToString())
+                {
+                    case "title":
+                        if (coverFlag)
+                        {
+                            BitmapImage img = ServiceClass.ImageFromByte(ServiceClass.GetCover(doc));
+                            fd.Blocks.Add(new BlockUIContainer(new Image() { Source = img, Width = img.PixelWidth, Height = img.PixelHeight }));
+                            coverFlag = false;
+                        }
+                        var p = from e in element.Descendants()
+                                where e.Name=="p"
+                                select e;
+                        foreach (var par in p)
+                        {
+                            Paragraph title_par = new Paragraph();
+                            title_par.Inlines.Add(new Bold(new Run(par.Value)));
+                            title_par.TextAlignment = TextAlignment.Center;
+                            fd.Blocks.Add(title_par);
+                        }
+                        break;
+
+                    case "p":
+                        if (coverFlag)
+                        {
+                            BitmapImage img = ServiceClass.ImageFromByte(ServiceClass.GetCover(doc));
+                            fd.Blocks.Add(new BlockUIContainer(new Image() { Source = img, Width = img.PixelWidth, Height = img.PixelHeight }));
+                            coverFlag = false;
+                        }
+                        if (element.Parent.Name != "title")
+                        {
+                            Paragraph paragraf = new Paragraph();
+                            paragraf.Inlines.Add(element.Value);
+                            fd.Blocks.Add(paragraf);
+                        }
+                        break;
+                }
+            }
+
+            return fd;
+        }
 
         Paragraph bookmark;
         private void button1_Click(object sender, RoutedEventArgs e)
         {
             var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
+            //paginator
+            //ser
             var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber )) as TextPointer;
             bookmark = position.Paragraph;
         }
@@ -91,6 +114,14 @@ namespace Kursovoj
         ~MainWindow()
         {
             File.Delete(openedFile);
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                Close();
+            }
         }
     }
 }
