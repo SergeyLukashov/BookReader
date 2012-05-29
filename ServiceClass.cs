@@ -16,7 +16,7 @@ namespace Kursovoj
 {
     class ServiceClass
     {
-        public static string PreOpen(string fileName)
+        public static string PreOpen(string fileName)//not used
         {
             string tempFileName = fileName.Substring(0, fileName.Length - 4) + "_temp.fb2";
 
@@ -33,7 +33,7 @@ namespace Kursovoj
 
         public static string GetCover(XDocument doc)
         {
-            var image_query = (from node in doc.Root.Descendants("binary")
+            var image_query = (from node in doc.Root.Descendants("{http://www.gribuser.ru/xml/fictionbook/2.0}binary")
                                select node.Value).ToList<string>();
 
             if (image_query.Count != 0) return image_query[0];
@@ -72,7 +72,7 @@ namespace Kursovoj
         /// <returns>Заголовок</returns>
         public static string GetTitle(XDocument doc)
         {
-            List<string> b_title = (from node in doc.Root.Descendants("book-title")
+            List<string> b_title = (from node in doc.Root.Descendants("{http://www.gribuser.ru/xml/fictionbook/2.0}book-title")
                                     select node.Value).ToList<string>();
 
             if (b_title.Count != 0) return b_title[0];
@@ -82,11 +82,11 @@ namespace Kursovoj
         public static string[] GetAuthor(XDocument doc)
         {
             string[] author = new string[2];
-            List<string> q_firstName = (from node in doc.Root.Descendants("first-name")
+            List<string> q_firstName = (from node in doc.Root.Descendants("{http://www.gribuser.ru/xml/fictionbook/2.0}first-name")
                                         select node.Value).ToList<string>();
             if (q_firstName.Count != 0) author[0] = q_firstName[0];
 
-            List<string> q_lastName = (from node in doc.Root.Descendants("last-name")
+            List<string> q_lastName = (from node in doc.Root.Descendants("{http://www.gribuser.ru/xml/fictionbook/2.0}last-name")
                                        select node.Value).ToList<string>();
             if (q_lastName.Count != 0) author[1] = q_lastName[0];
 
@@ -95,7 +95,7 @@ namespace Kursovoj
 
         public static string GetAnnotation(XDocument doc)
         {
-            List<string> q_annotation = (from node in doc.Root.Descendants("annotation")
+            List<string> q_annotation = (from node in doc.Root.Descendants("{http://www.gribuser.ru/xml/fictionbook/2.0}annotation")
                                         select node.Value).ToList<string>();
 
             if (q_annotation.Count != 0) return q_annotation[0];

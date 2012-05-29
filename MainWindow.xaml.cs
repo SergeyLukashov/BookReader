@@ -28,16 +28,25 @@ namespace Kursovoj
         //FlowDocumentReader fdr = new FlowDocumentReader();
         string openedFile;
 
-        public MainWindow(string file)
+        public MainWindow(string openedFile)
         {
             InitializeComponent();
 
-            openedFile = ServiceClass.PreOpen(file);
-            XDocument doc = XDocument.Load(openedFile);
+            //openedFile = ServiceClass.PreOpen(file);
+            //openedFile = file;
 
-            fdr.Document = Parse(doc);
-            LoadBookmark();
-            fdr.Focus();
+            if (!File.Exists(openedFile))
+            {
+                System.Windows.MessageBox.Show("Файл не существует.");
+                //Close();
+            }
+            else
+            {
+                XDocument doc = XDocument.Load(openedFile);
+                fdr.Document = Parse(doc);
+                //LoadBookmark();
+                fdr.Focus();
+            }
         }
 
         private FlowDocument Parse(XDocument doc)
@@ -48,15 +57,22 @@ namespace Kursovoj
             fd.Background = new SolidColorBrush(Color.FromRgb(255, 253, 225));
             fd.FontSize = 16;
 
-            var all_elements = from el in doc.Root.Element("body").Descendants()
+            XNamespace ns = doc.Root.GetDefaultNamespace();
+
+            //doc.Root.SetAttributeValue("SelectionNamespaces", "xmlns:xhtml=\"http://www.gribuser.ru/xml/fictionbook/2.0\"");
+            
+            //doc.Root.
+
+            var all_elements = from el in doc.Root.Element(ns+"body").Descendants()
                                select el;
 
             foreach (var element in all_elements)
             {
-                //string s = element.Name.ToString();
+                string s = element.Name.ToString();
+                XName n = element.Name;
                 switch (element.Name.ToString())
                 {
-                    case "title":
+                    case "{http://www.gribuser.ru/xml/fictionbook/2.0}title":
                         if (coverFlag)
                         {
                             BitmapImage img = ServiceClass.ImageFromByte(ServiceClass.GetCover(doc));
@@ -64,7 +80,7 @@ namespace Kursovoj
                             coverFlag = false;
                         }
                         var p = from e in element.Descendants()
-                                where e.Name=="p"
+                                where e.Name == "{http://www.gribuser.ru/xml/fictionbook/2.0}p"
                                 select e;
                         foreach (var par in p)
                         {
@@ -75,14 +91,14 @@ namespace Kursovoj
                         }
                         break;
 
-                    case "p":
+                    case "{http://www.gribuser.ru/xml/fictionbook/2.0}p":
                         if (coverFlag)
                         {
                             BitmapImage img = ServiceClass.ImageFromByte(ServiceClass.GetCover(doc));
                             fd.Blocks.Add(new BlockUIContainer(new Image() { Source = img, Width = img.PixelWidth, Height = img.PixelHeight }));
                             coverFlag = false;
                         }
-                        if (element.Parent.Name != "title")
+                        if (element.Parent.Name != "{http://www.gribuser.ru/xml/fictionbook/2.0}title")
                         {
                             Paragraph paragraph = new Paragraph();
                             paragraph.Inlines.Add(element.Value);
@@ -125,9 +141,16 @@ namespace Kursovoj
         //Paragraph bookmark;
         private void SaveBookmark()
         {
+            if (fdr.Document == null) return;
+
             Paragraph bookmark;
             var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
             var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber)) as TextPointer;
+            if (position == null)
+            {
+                return;
+            }
+
             bookmark = position.Paragraph;
 
             string serializeFileName = openedFile.Substring(0, openedFile.Length - 9) + ".s";
@@ -160,7 +183,7 @@ namespace Kursovoj
 
         private Paragraph LoadBookmark()
         {
-            string serializeFileName = openedFile.Substring(0, openedFile.Length - 9) + ".s";
+            string serializeFileName = openedFile.Substring(0, openedFile.Length - 4) + ".s";
             if (File.Exists(serializeFileName))
             {
                 Paragraph bookmark = ServiceClass.Deserialize(serializeFileName);
@@ -198,8 +221,8 @@ namespace Kursovoj
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            SaveBookmark();
-            File.Delete(openedFile);
+            //SaveBookmark();
+            //File.Delete(openedFile);
         }
     }
 }

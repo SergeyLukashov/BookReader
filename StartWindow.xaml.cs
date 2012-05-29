@@ -75,9 +75,11 @@ namespace Kursovoj
             XDocument books = XDocument.Load("AllBooks.xml");
             books.Root.RemoveAll();
             content.Clear();
-            foreach (string file in fb2Files)
+            foreach (string openedFile in fb2Files)
             {
-                string openedFile = ServiceClass.PreOpen(file);
+                //string openedFile = ServiceClass.PreOpen(file);
+                //string openedFile = file;
+
                 XDocument doc = XDocument.Load(openedFile);
 
                 string title = ServiceClass.GetTitle(doc);
@@ -85,18 +87,18 @@ namespace Kursovoj
                 string coverInStr = ServiceClass.GetCover(doc);
                 string annotation = ServiceClass.GetAnnotation(doc);
 
-                File.Delete(openedFile);
+                //File.Delete(openedFile);
 
                 XElement book = new XElement("book", coverInStr);
                 book.Add(new XAttribute("title", title));
                 book.Add(new XAttribute("authorFN", author[0]));
                 book.Add(new XAttribute("authorLN", author[1]));
                 book.Add(new XAttribute("annotation", annotation));
-                book.Add(new XAttribute("filePath", file));
+                book.Add(new XAttribute("filePath", openedFile));
 
                 books.Root.Add(book);
 
-                content.Add(new ListContent(ServiceClass.ImageFromByte(coverInStr), title, author[0], author[1], file, annotation));
+                content.Add(new ListContent(ServiceClass.ImageFromByte(coverInStr), title, author[0], author[1], openedFile, annotation));
             }
             books.Save("AllBooks.xml");
         }
