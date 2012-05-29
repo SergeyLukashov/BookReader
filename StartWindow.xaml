@@ -12,21 +12,24 @@
             <ListView.View>
                 <GridView >
                     <GridView.Columns>
-                        <GridViewColumn Header="обложка" Width="60">
+                        <GridViewColumn Width="60" >
+                            <HeaderedContentControl Foreground="#FF042271" Width="60" FontSize="14">обложка</HeaderedContentControl>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Image HorizontalAlignment="Center" VerticalAlignment="Center" Height="45" Source="{Binding Cover}"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="название" Width="400">
+                        <GridViewColumn Width="400">
+                            <HeaderedContentControl Foreground="#FF042271" Width="400" FontSize="14" MouseLeftButtonDown="GridViewColumn_Title_MouseDown" >название</HeaderedContentControl>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock FontSize="15" FontWeight="Bold" Text="{Binding Title}"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="автор" Width="210">
+                        <GridViewColumn  Width="210">
+                            <HeaderedContentControl Foreground="#FF042271" Width="210" FontSize="14" MouseLeftButtonDown="GridViewColumn_Author_MouseDown" >автор</HeaderedContentControl>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock FontSize="15" Text="{Binding AuthorSurname}">

@@ -34,9 +34,9 @@ namespace Kursovoj
 
             openedFile = ServiceClass.PreOpen(file);
             XDocument doc = XDocument.Load(openedFile);
-            
 
             fdr.Document = Parse(doc);
+            LoadBookmark();
             fdr.Focus();
         }
 
@@ -84,36 +84,108 @@ namespace Kursovoj
                         }
                         if (element.Parent.Name != "title")
                         {
-                            Paragraph paragraf = new Paragraph();
-                            paragraf.Inlines.Add(element.Value);
-                            fd.Blocks.Add(paragraf);
+                            Paragraph paragraph = new Paragraph();
+                            paragraph.Inlines.Add(element.Value);
+                            //if (paragraph.Inlines == LoadBookmark().Inlines) System.Windows.MessageBox.Show("adawdadawd");
+                            fd.Blocks.Add(paragraph);
                         }
                         break;
                 }
             }
-
             return fd;
         }
 
-        Paragraph bookmark;
+        
         private void button1_Click(object sender, RoutedEventArgs e)
         {
+            //var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
+            //var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber )) as TextPointer;
+            //bookmark = position.Paragraph;
+            LoadBookmark();
             var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
-            //paginator
-            //ser
-            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber )) as TextPointer;
-            bookmark = position.Paragraph;
+            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber)) as TextPointer;
+            //FindWordFromPosition(position, "народ").Paragraph.BringIntoView();
+
         }
 
         private void button2_Click(object sender, RoutedEventArgs e)
         {
-            if(bookmark!=null)
-            bookmark.BringIntoView();
+            //if(bookmark!=null)
+            //bookmark.BringIntoView();
+            //fdr.Document.Background
+
+            SaveBookmark();
         }
 
         ~MainWindow()
         {
-            File.Delete(openedFile);
+            
+        }
+
+        //Paragraph bookmark;
+        private void SaveBookmark()
+        {
+            Paragraph bookmark;
+            var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
+            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber)) as TextPointer;
+            bookmark = position.Paragraph;
+
+            string serializeFileName = openedFile.Substring(0, openedFile.Length - 9) + ".s";
+            ServiceClass.Serialize(bookmark, serializeFileName);
+        }
+
+        TextPointer FindWordFromPosition(TextPointer position, string word)
+        {
+            while (position != null)
+            {
+                if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+                {
+                    string textRun = position.GetTextInRun(LogicalDirection.Forward);
+
+                    // Find the starting index of any substring that matches "word".
+                    int indexInRun = textRun.IndexOf(word);
+                    if (indexInRun >= 0)
+                    {
+                        position = position.GetPositionAtOffset(indexInRun);
+                        break;
+                    }
+                }
+                else
+                    position = position.GetNextContextPosition(LogicalDirection.Forward);
+            }
+
+            // position will be null if "word" is not found.
+            return position;
+        }
+
+        private Paragraph LoadBookmark()
+        {
+            string serializeFileName = openedFile.Substring(0, openedFile.Length - 9) + ".s";
+            if (File.Exists(serializeFileName))
+            {
+                Paragraph bookmark = ServiceClass.Deserialize(serializeFileName);
+                if(fdr.Document.Blocks.Contains(bookmark)) System.Windows.MessageBox.Show("adawdadawd");
+                
+                //var q = from i in fdr.Document.Blocks
+                //        where i is Paragraph 
+                //        select i;
+
+                //foreach (var item in q)
+                //{
+                //    Paragraph p = (Paragraph)item;
+                //    if (p.Inlines == bookmark.Inlines) System.Windows.MessageBox.Show("adawdadawd");
+                //}
+
+                if(bookmark != null)
+                {
+                    bookmark.BringIntoView();
+                }
+                return bookmark;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -122,6 +194,12 @@ namespace Kursovoj
             {
                 Close();
             }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            SaveBookmark();
+            File.Delete(openedFile);
         }
     }
 }

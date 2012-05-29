@@ -23,6 +23,11 @@ namespace Kursovoj
     /// </summary>
     public partial class StartWindow : Window
     {
+        enum SortOrder { Asc, Desc };
+
+        SortOrder titleOrder=SortOrder.Asc;
+        SortOrder authorOrder = SortOrder.Asc;
+
         MainWindow mw;
         ObservableCollection<ListContent> content = new ObservableCollection<ListContent>();
         public StartWindow()
@@ -102,6 +107,74 @@ namespace Kursovoj
             Activate();
         }
 
+        private void SortContent(Comparison<ListContent> sortFoo)
+        {
+            List<ListContent> temp_list = content.ToList();
+            temp_list.Sort(sortFoo);
+
+            content.Clear();
+            foreach (var item in temp_list)
+            {
+                content.Add(item);
+            }
+        }
+
+        private int AuthorAsc(ListContent ls1, ListContent ls2)
+        {
+            if (ls1.AuthorSurname[0] > ls2.AuthorSurname[0])
+            {
+                return 1;
+            }
+            else if (ls1.AuthorSurname[0] < ls2.AuthorSurname[0])
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        private int AuthorDesc(ListContent ls1, ListContent ls2)
+        {
+            if (ls1.AuthorSurname[0] < ls2.AuthorSurname[0])
+            {
+                return 1;
+            }
+            else if (ls1.AuthorSurname[0] > ls2.AuthorSurname[0])
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        private int TitleAsc(ListContent ls1, ListContent ls2)
+        {
+            if (ls1.Title[0] > ls2.Title[0])
+            {
+                return 1;
+            }
+            else if (ls1.Title[0] < ls2.Title[0])
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        private int TitleDesc(ListContent ls1, ListContent ls2)
+        {
+            if (ls1.Title[0] < ls2.Title[0])
+            {
+                return 1;
+            }
+            else if (ls1.Title[0] > ls2.Title[0])
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
         private ObservableCollection<ListContent> LoadBooks()
         {
             XDocument document = XDocument.Load("AllBooks.xml");
@@ -121,9 +194,12 @@ namespace Kursovoj
         {
             ListContent item = (ListContent)listView1.SelectedItem;
 
-            string file = item.FilePath;
-            mw = new MainWindow(file);
-            mw.Show();
+            if (item!=null)
+            {
+                string file = item.FilePath;
+                mw = new MainWindow(file);
+                mw.Show();
+            }
         }
 
         private void listView1_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -141,13 +217,44 @@ namespace Kursovoj
         {
             ListContent item = (ListContent)listView1.SelectedItem;
 
-            if (item == null) return;
+            if (item == null)
+            {
+                return;
+            }
 
             image1.Source = item.Cover;
             textBlock1.Text = item.AuthorName+" "+item.AuthorSurname;
             textBlock2.Text = item.Title;
             //textBlock3.Text = item.Annotation;
             textBox1.Text = item.Annotation;
+        }
+
+        private void GridViewColumn_Title_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (titleOrder == SortOrder.Asc)
+            {
+                SortContent(TitleAsc);
+                titleOrder = SortOrder.Desc;
+            }
+            else
+            {
+                SortContent(TitleDesc);
+                titleOrder = SortOrder.Asc;
+            }
+        }
+
+        private void GridViewColumn_Author_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (authorOrder == SortOrder.Asc)
+            {
+                SortContent(AuthorAsc);
+                authorOrder = SortOrder.Desc;
+            }
+            else
+            {
+                SortContent(AuthorDesc);
+                authorOrder = SortOrder.Asc;
+            }
         }
     }
 }

@@ -60,6 +60,7 @@
       <DependentUpon>FirstStartWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ListContent.cs" />
+    <Compile Include="MyParagraph.cs" />
     <Compile Include="ServiceClass.cs" />
     <Compile Include="StartWindow.xaml.cs">
       <DependentUpon>StartWindow.xaml</DependentUpon>

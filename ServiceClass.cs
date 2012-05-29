@@ -6,6 +6,11 @@ using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using System.Windows.Media.Imaging;
+using System.Windows.Documents;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
+using System.Windows.Navigation;
+using System.Windows;
 
 namespace Kursovoj
 {
@@ -95,6 +100,58 @@ namespace Kursovoj
 
             if (q_annotation.Count != 0) return q_annotation[0];
             else return "Error. No annotation available.";
+        }
+
+        public static void Serialize(Paragraph p, string path)
+        {
+            byte[] temp = ParagraphToByte(p);
+
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write);
+            bf.Serialize(fs, temp);
+            fs.Close();
+        }
+
+        public static Paragraph Deserialize(string path)
+        {
+            byte[] temp;
+            BinaryFormatter bf = new BinaryFormatter();
+
+            FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+            temp = (byte[])bf.Deserialize(fs);
+            fs.Close();
+
+            return ByteToParagraph(temp); ;
+        }
+
+        public static byte[] ParagraphToByte(Paragraph p)
+        {
+            MemoryStream stream = new MemoryStream();
+            TextRange tr = new TextRange(p.ContentStart, p.ContentEnd);
+            tr.Save(stream, DataFormats.Rtf);
+            byte[] blob = stream.ToArray();
+            stream.Close();
+
+            return blob;
+        }
+
+        public static Paragraph ByteToParagraph(byte[] blob)
+        {
+            MemoryStream stream = new MemoryStream();
+            Paragraph p=new Paragraph();
+            TextRange tr = new TextRange(p.ContentStart, p.ContentEnd);
+            if (!tr.CanLoad(DataFormats.Rtf))
+            {
+                return null;
+            }
+            stream.Write(blob, 0, blob.Length);
+            if (stream.Length != 0)
+            {
+                tr.Load(stream, DataFormats.Rtf);
+            }
+            stream.Close();
+
+            return p;
         }
     }
 }
