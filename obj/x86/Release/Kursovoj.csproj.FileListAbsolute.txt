@@ -11,3 +11,8 @@ E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\GenerateResource.read.1.tlog
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\GenerateResource.write.1.tlog
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\Kursovoj.exe
 E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\Kursovoj.pdb
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\DictionaryForScrollBars.baml
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\FirstStartWindow.baml
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\StartWindow.baml
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\FirstStartWindow.g.cs
+E:\Programming\C#\Kursovoj\Kursovoj\obj\x86\Release\StartWindow.g.cs

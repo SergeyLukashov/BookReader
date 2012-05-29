@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Kursovoj.StartWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="BookReader" x:Name="startWindow" Height="700" Width="950" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Topmost="False" >
+        Title="BookReader" x:Name="startWindow" Height="700" Width="950" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Topmost="False" Icon="/Kursovoj;component/bin/Release/icon.png">
     
     <Window.Resources>
         <ResourceDictionary Source="DictionaryForScrollBars.xaml"/>
@@ -9,6 +9,20 @@
     
         <Grid>
         <ListView Margin="12,12,241,10" Name="listView1" FontSize="13" FontWeight="Normal" BorderThickness="0" MouseDoubleClick="listView1_MouseDoubleClick" KeyDown="listView1_KeyDown" SelectionMode="Single" SelectionChanged="listView1_SelectionChanged" Foreground="#FF042271" DataContext="{Binding}" Background="White">
+            <ListView.ContextMenu>
+                <ContextMenu Name="cm" StaysOpen="true">
+                    <MenuItem Click="MenuItem_Click" Header="Сканировать папку...">
+                        <MenuItem.Icon>
+                            <Image Width="20" Source="/Kursovoj;component/bin/Release/refresh.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Click="MenuItem_Click_1" Header="Выход">
+                        <MenuItem.Icon>
+                            <Image Width="20" Source="/Kursovoj;component/bin/Release/exit.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.View>
                 <GridView >
                     <GridView.Columns>

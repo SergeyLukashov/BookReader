@@ -63,7 +63,6 @@ namespace Kursovoj
             }
             else
             {
-                //System.Windows.MessageBox.Show("cans");
                 Close();
             }
         }
@@ -77,17 +76,12 @@ namespace Kursovoj
             content.Clear();
             foreach (string openedFile in fb2Files)
             {
-                //string openedFile = ServiceClass.PreOpen(file);
-                //string openedFile = file;
-
                 XDocument doc = XDocument.Load(openedFile);
 
                 string title = ServiceClass.GetTitle(doc);
                 string[] author = ServiceClass.GetAuthor(doc);
                 string coverInStr = ServiceClass.GetCover(doc);
                 string annotation = ServiceClass.GetAnnotation(doc);
-
-                //File.Delete(openedFile);
 
                 XElement book = new XElement("book", coverInStr);
                 book.Add(new XAttribute("title", title));
@@ -257,6 +251,30 @@ namespace Kursovoj
                 SortContent(AuthorDesc);
                 authorOrder = SortOrder.Asc;
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            selectFolderDialog.ShowNewFolderButton = false;//select books folder
+            selectFolderDialog.RootFolder = Environment.SpecialFolder.MyComputer;
+            DialogResult dr = selectFolderDialog.ShowDialog();
+
+            if (dr == System.Windows.Forms.DialogResult.OK)
+            {
+                XDocument tmp = new XDocument(new XElement("BookList"));
+                tmp.Save("AllBooks.xml");
+
+                Bypass(selectFolderDialog.SelectedPath);
+            }
+            else
+            {
+                Close();
+            }
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

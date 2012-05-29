@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Linq;
 using System.IO;
-//using System.Resources.
+
 
 namespace Kursovoj
 {
@@ -24,24 +24,19 @@ namespace Kursovoj
     /// </summary>
     public partial class MainWindow : Window
     {
-        //FlowDocumentPageViewer fdpv = new FlowDocumentPageViewer();
-        //FlowDocumentReader fdr = new FlowDocumentReader();
-        string openedFile;
+        string openFileName;
 
         public MainWindow(string openedFile)
         {
             InitializeComponent();
 
-            //openedFile = ServiceClass.PreOpen(file);
-            //openedFile = file;
-
             if (!File.Exists(openedFile))
             {
                 System.Windows.MessageBox.Show("Файл не существует.");
-                //Close();
             }
             else
             {
+                openFileName = openedFile;
                 XDocument doc = XDocument.Load(openedFile);
                 fdr.Document = Parse(doc);
                 //LoadBookmark();
@@ -58,10 +53,6 @@ namespace Kursovoj
             fd.FontSize = 16;
 
             XNamespace ns = doc.Root.GetDefaultNamespace();
-
-            //doc.Root.SetAttributeValue("SelectionNamespaces", "xmlns:xhtml=\"http://www.gribuser.ru/xml/fictionbook/2.0\"");
-            
-            //doc.Root.
 
             var all_elements = from el in doc.Root.Element(ns+"body").Descendants()
                                select el;
@@ -102,7 +93,6 @@ namespace Kursovoj
                         {
                             Paragraph paragraph = new Paragraph();
                             paragraph.Inlines.Add(element.Value);
-                            //if (paragraph.Inlines == LoadBookmark().Inlines) System.Windows.MessageBox.Show("adawdadawd");
                             fd.Blocks.Add(paragraph);
                         }
                         break;
@@ -110,105 +100,33 @@ namespace Kursovoj
             }
             return fd;
         }
-
         
-        private void button1_Click(object sender, RoutedEventArgs e)
-        {
-            //var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
-            //var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber )) as TextPointer;
-            //bookmark = position.Paragraph;
-            LoadBookmark();
-            var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
-            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber)) as TextPointer;
-            //FindWordFromPosition(position, "народ").Paragraph.BringIntoView();
-
-        }
-
-        private void button2_Click(object sender, RoutedEventArgs e)
-        {
-            //if(bookmark!=null)
-            //bookmark.BringIntoView();
-            //fdr.Document.Background
-
-            SaveBookmark();
-        }
-
         ~MainWindow()
         {
             
         }
 
-        //Paragraph bookmark;
         private void SaveBookmark()
         {
-            if (fdr.Document == null) return;
+            if (openFileName != null)
+            {
+                string path = openFileName.Substring(0, openFileName.Length - 4) + ".s";
+                ServiceClass.Serialize(fdr.PageNumber, path);
+            }
+        }
 
-            Paragraph bookmark;
-            var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
-            var position = paginator.GetPagePosition(paginator.GetPage(fdr.PageNumber)) as TextPointer;
-            if (position == null)
+        private void LoadBookmark()
+        {
+            string path = openFileName.Substring(0, openFileName.Length - 4) + ".s";
+            if (!File.Exists(path))
             {
                 return;
             }
+            int page = ServiceClass.Deserialize(path);
+            var paginator = ((IDocumentPaginatorSource)fdr.Document).DocumentPaginator as DynamicDocumentPaginator;
+            var position = paginator.GetPagePosition(paginator.GetPage(page)) as TextPointer;
 
-            bookmark = position.Paragraph;
-
-            string serializeFileName = openedFile.Substring(0, openedFile.Length - 9) + ".s";
-            ServiceClass.Serialize(bookmark, serializeFileName);
-        }
-
-        TextPointer FindWordFromPosition(TextPointer position, string word)
-        {
-            while (position != null)
-            {
-                if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
-                {
-                    string textRun = position.GetTextInRun(LogicalDirection.Forward);
-
-                    // Find the starting index of any substring that matches "word".
-                    int indexInRun = textRun.IndexOf(word);
-                    if (indexInRun >= 0)
-                    {
-                        position = position.GetPositionAtOffset(indexInRun);
-                        break;
-                    }
-                }
-                else
-                    position = position.GetNextContextPosition(LogicalDirection.Forward);
-            }
-
-            // position will be null if "word" is not found.
-            return position;
-        }
-
-        private Paragraph LoadBookmark()
-        {
-            string serializeFileName = openedFile.Substring(0, openedFile.Length - 4) + ".s";
-            if (File.Exists(serializeFileName))
-            {
-                Paragraph bookmark = ServiceClass.Deserialize(serializeFileName);
-                if(fdr.Document.Blocks.Contains(bookmark)) System.Windows.MessageBox.Show("adawdadawd");
-                
-                //var q = from i in fdr.Document.Blocks
-                //        where i is Paragraph 
-                //        select i;
-
-                //foreach (var item in q)
-                //{
-                //    Paragraph p = (Paragraph)item;
-                //    if (p.Inlines == bookmark.Inlines) System.Windows.MessageBox.Show("adawdadawd");
-                //}
-
-                if(bookmark != null)
-                {
-                    bookmark.BringIntoView();
-                }
-                return bookmark;
-            }
-            else
-            {
-                return null;
-            }
+            position.Paragraph.BringIntoView();
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -221,8 +139,15 @@ namespace Kursovoj
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            //SaveBookmark();
-            //File.Delete(openedFile);
+            SaveBookmark();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (openFileName != null)
+            {
+                LoadBookmark();
+            }
         }
     }
 }
